@@ -24,6 +24,7 @@ import androidx.preference.PreferenceManager
 import com.better.alarm.R
 import com.better.alarm.bootstrap.AlarmApplicationInit.startOnce
 import com.better.alarm.data.AlarmValue
+import com.better.alarm.data.Prefs
 import com.better.alarm.domain.Alarms
 import com.better.alarm.domain.AlarmsScheduler
 import com.better.alarm.domain.Store
@@ -85,6 +86,15 @@ private object AlarmApplicationInit {
     alarmsLogger.debug { "Started alarms, SDK is " + Build.VERSION.SDK_INT }
     // start scheduling alarms after all alarms have been started
     koin.get<AlarmsScheduler>().start()
+
+    // Sync stored score into store at startup
+    val prefs = koin.get<Prefs>()
+    val store = koin.get<Store>()
+    prefs.score.observe()
+      .take(1)
+      .subscribe { value -> store.score.onNext(value) }
+
+    prefs.streak.observe().take(1).subscribe { store.streak.onNext(it) }
 
     with(koin.get<Store>()) {
       // register logging after startup has finished to avoid logging( O(n) instead of O(n log n) )

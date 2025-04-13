@@ -37,6 +37,8 @@ class Alarms(
     private val alarmsRepository: AlarmsRepository,
     private val logger: Logger,
     private val databaseQuery: DatabaseQuery,
+    private val scoreController: ScoreController,
+    private val streakController: StreakController
 ) : IAlarmsManager, DatastoreMigration {
   private val alarms: MutableMap<Int, AlarmCore> = mutableMapOf()
 
@@ -96,6 +98,8 @@ class Alarms(
         store,
         calendars,
         onDelete = { alarms.remove(it) },
+        scoreController = scoreController,
+        streakController = streakController,
     )
   }
 

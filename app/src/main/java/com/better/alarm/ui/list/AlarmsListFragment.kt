@@ -14,6 +14,7 @@ import android.widget.AbsListView
 import android.widget.AdapterView
 import android.widget.AdapterView.AdapterContextMenuInfo
 import android.widget.ListView
+import android.widget.TextView
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
 import com.better.alarm.R
@@ -29,6 +30,7 @@ import com.better.alarm.ui.timepicker.TimePickerDialogFragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
 import com.melnykov.fab.FloatingActionButton
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.disposables.Disposables
 import kotlinx.coroutines.channels.Channel
@@ -120,6 +122,9 @@ class AlarmsListFragment : Fragment() {
       savedInstanceState: Bundle?
   ): View {
     val view = inflater.inflate(R.layout.list_fragment, container, false)
+    val scoreView = view.findViewById<TextView>(R.id.text_score)
+    val streakView = view.findViewById<TextView>(R.id.text_streak)
+
 
     val listView = view.findViewById(R.id.list_fragment_list) as ListView
 
@@ -162,6 +167,20 @@ class AlarmsListFragment : Fragment() {
                     }
                   }
           mAdapter.dataset = sorted
+        }
+
+    layoutSub =
+      store.score()
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe { score ->
+          scoreView.text = "Score: $score"
+        }
+
+    layoutSub =
+      store.streak()
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe { streak ->
+          streakView.text = "No Snooze Streak: $streak"
         }
 
     configureBottomDrawer(view)

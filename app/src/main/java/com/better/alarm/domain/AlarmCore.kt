@@ -29,6 +29,7 @@ import com.better.alarm.domain.statemachine.State
 import com.better.alarm.domain.statemachine.StateMachine
 import com.better.alarm.logger.Logger
 import com.better.alarm.receivers.Intents
+import com.google.android.material.color.utilities.Score
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import java.text.DateFormat
@@ -125,6 +126,8 @@ class AlarmCore(
     private val store: Store,
     private val calendars: Calendars,
     private val onDelete: (Int) -> Unit,
+    private val scoreController: ScoreController,
+    private val streakController: StreakController
 ) : Alarm {
   private val stateMachine: StateMachine<Event>
   private val df: DateFormat
@@ -136,6 +139,10 @@ class AlarmCore(
   private val autoSilence: Observable<Int>
 
   private val disposable = CompositeDisposable()
+
+  private var hasSnoozed: Boolean = false
+  private var snoozeCount: Int = 0
+
 
   init {
     this.df = SimpleDateFormat("dd-MM-yy HH:mm:ss", Locale.GERMANY)
@@ -325,6 +332,10 @@ class AlarmCore(
     }
 
     override fun onDismiss() {
+      if (!hasSnoozed) {
+        scoreController.onDismissedWithoutSnooze()
+        streakController.onDismissedWithoutSnooze()
+      }
       stateMachine.transitionTo(rescheduleTransition)
     }
 
@@ -511,6 +522,16 @@ class AlarmCore(
       }
 
       override fun onSnooze(snooze: Snooze) {
+        hasSnoozed = true
+
+        if (snoozeCount == 0) {
+          scoreController.onSnoozed(-5)
+        } else {
+          scoreController.onSnoozed(-10)
+        }
+        streakController.onSnoozed()
+        snoozeCount += 1
+
         stateMachine.transitionTo(snoozed)
       }
 

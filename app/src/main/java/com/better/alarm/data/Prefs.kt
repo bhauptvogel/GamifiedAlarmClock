@@ -27,6 +27,9 @@ private constructor(
     val longClickDismiss: RxDataStore<Boolean>,
     val theme: RxDataStore<String>,
     val defaultRingtone: RxDataStore<String>,
+    val score: RxDataStore<Int>,
+    val streak: RxDataStore<Int>,
+    val lastInteractionDate: RxDataStore<String>
 ) {
   fun layout(): Layout {
     return listRowLayout().take(1).blockingFirst()
@@ -64,6 +67,9 @@ private constructor(
           theme = factory.stringDataStore(KEY_THEME, "deusex"),
           defaultRingtone =
               factory.stringDataStore(KEY_DEFAULT_RINGTONE, Alarmtone.SystemDefault.asString()),
+          score = factory.intDataStore(KEY_SCORE, 50),
+          streak = factory.intDataStore("streak", 0),
+          lastInteractionDate = factory.stringDataStore("last_interaction_date", "")
       )
     }
 
@@ -84,5 +90,6 @@ private constructor(
     const val LIST_ROW_LAYOUT_COMPACT = "compact"
     const val LIST_ROW_LAYOUT_CLASSIC = "classic"
     const val LIST_ROW_LAYOUT_BOLD = "bold"
+    const val KEY_SCORE = "alarm_score"
   }
 }

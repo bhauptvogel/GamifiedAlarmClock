@@ -15,6 +15,8 @@ data class Store(
     val events: Subject<Event>,
 ) {
   val uiVisible: BehaviorSubject<Boolean> = BehaviorSubject.createDefault(false)
+  val score: BehaviorSubject<Int> = BehaviorSubject.createDefault(0)
+  val streak: BehaviorSubject<Int> = BehaviorSubject.createDefault(0)
 
   fun alarms(): Observable<List<AlarmValue>> {
     return alarmsSubject().distinctUntilChanged()
@@ -25,6 +27,10 @@ data class Store(
   fun next(): BehaviorSubject<Optional<Next>> = next
 
   fun sets(): Subject<AlarmSet> = sets
+
+  fun score(): Observable<Int> = score.distinctUntilChanged()
+
+  fun streak(): Observable<Int> = streak.distinctUntilChanged()
 
   data class Next(
       val isPrealarm: Boolean,

@@ -23,7 +23,9 @@ import com.better.alarm.domain.AlarmsScheduler
 import com.better.alarm.domain.Calendars
 import com.better.alarm.domain.IAlarmsManager
 import com.better.alarm.domain.IAlarmsScheduler
+import com.better.alarm.domain.ScoreController
 import com.better.alarm.domain.Store
+import com.better.alarm.domain.StreakController
 import com.better.alarm.logger.BugReporter
 import com.better.alarm.logger.Logger
 import com.better.alarm.logger.LoggerFactory
@@ -122,7 +124,7 @@ fun startKoin(context: Context): Koin {
     single(named("datastore")) { File(get<Context>().applicationContext.filesDir, "datastore") }
     factory { get<Context>().contentResolver }
     single<DatabaseQuery> { SQLiteDatabaseQuery(get()) }
-    single { Alarms(get(), get(), get(), get(), get(), get(), logger("Alarms"), get()) } binds
+    single { Alarms(get(), get(), get(), get(), get(), get(), logger("Alarms"), get(), get(), get()) } binds
         arrayOf(IAlarmsManager::class, DatastoreMigration::class)
     single { ScheduledReceiver(get(), get(), get(), get()) }
     single { ToastPresenter(get(), get()) }
@@ -137,6 +139,9 @@ fun startKoin(context: Context): Koin {
     factory { get<Context>().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager }
     factory { get<Context>().getSystemService(Context.AUDIO_SERVICE) as AudioManager }
     factory { get<Context>().resources }
+
+    single { ScoreController(get<Prefs>().score, get<Store>()) }
+    single { StreakController(get<Prefs>().streak, get<Prefs>().lastInteractionDate, get<Store>(), get<ScoreController>()) }
 
     factory(named("volumePreferenceDemo")) {
       KlaxonPlugin(
